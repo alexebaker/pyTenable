@@ -119,10 +119,12 @@ class ScanAPI(SCEndpoint):
         if 'max_time' in kw:
             # maxScanTime is a integer encased in a string value.  the snake
             # cased version of that expects an integer and converts it into the
-            # string equivalent. Use 0 for 'unlimited'.
+            # string equivalent. Use 0 for 'unlimited'. 120 is the max value.
             max_scan_time = self._check('max_time', kw['max_time'], int, default=1)
             if max_scan_time < 1:
                 kw['maxScanTime'] = 'unlimited'
+            elif max_scan_time > 120:
+                kw['maxScanTime'] = 120
             else:
                 kw['maxScanTime'] = str(max_scan_time)
             del(kw['max_time'])
