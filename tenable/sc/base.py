@@ -38,10 +38,11 @@ In all of the definitions except ``ical``, a  single parameter of ``type`` is
 passed with lone of the following values: ``ical``, ``never``, ``rollover``, and
 ``template``.  If no document is specified, then the default of ``never`` is
 assumed.  For repeating scans, you'll have to use the type of ``ical`` and also
-specify the ``start`` and ``rrule`` parameters as well.  The ``start`` parameter
-is an `iCal DateTime Form #3 <https://tools.ietf.org/html/rfc5545#section-3.3.5>`_
+specify the ``start`` and ``repeatRule`` parameters as well.  The ``start``
+parameter is an
+`iCal DateTime Form #3 <https://tools.ietf.org/html/rfc5545#section-3.3.5>`_
 formatted string specifying the date and time in which to start the repeating
-event.  The ``rrule`` parameter is an
+event.  The ``repeatRule`` parameter is an
 `iCal Recurrance Rule <https://tools.ietf.org/html/rfc5545#section-3.3.10>`_
 formatted string.
 
@@ -57,8 +58,8 @@ formatted string.
 
     {
         'type': 'ical',
-        'start': 'TZID=America/New York:20190214T090000',
-        'rrule': 'FREQ=DAILY;INTERVAL=1'
+        'start': 'TZID=America/New_York:20190214T090000',
+        'repeatRule': 'FREQ=DAILY;INTERVAL=1'
     }
 
 * Example weekly event every Saturday at 8:30pm Eastern
@@ -67,8 +68,8 @@ formatted string.
 
     {
         'type': 'ical',
-        'start': 'TZID=America/New York:20190214T203000',
-        'rrule': 'FREQ=WEEKLY;BYDAY=SA;INTERVAL=1'
+        'start': 'TZID=America/New_York:20190214T203000',
+        'repeatRule': 'FREQ=WEEKLY;BYDAY=SA;INTERVAL=1'
     }
 
 There are detailed instructions in the RFC documentation on how to construct
@@ -164,7 +165,6 @@ class SCEndpoint(APIEndpoint):
                 query_filters = query_response.get('filters', list())
 
                 kw['query']['filters'] = query_filters
-                return kw
 
             for f in filters:
                 if kw['type'] == 'ticket':
@@ -196,8 +196,23 @@ class SCEndpoint(APIEndpoint):
                         # "value" attribute
                         item['value'] = f[2]
 
-                # Add the newly expanded filter to the filters list.
-                kw['query']['filters'].append(item)
+                # Added this here to make the filter list overloadable.  As SC
+                # only supports one filter of a given type, if an existing
+                # filter is already in the list, we will overload it with the
+                # new one.  This allows for the ability to overload query
+                # filters if need be, or to overload a saved filterset that
+                # someone is appending to.
+                flist = [i['filterName'] for i in kw['query']['filters']]
+                if f[0] in flist:
+                    kw['query']['filters'].pop(flist.index(f[0]))
+
+                # Add the newly expanded filter to the filters list as long as
+                # both the operator and value are not None.  If both are none,
+                # then skip appending.  This should allow for effectively
+                # removing an unwanted filter from a query if a query id is
+                # specified.
+                if f[1] != None and f[2] != None:
+                    kw['query']['filters'].append(item)
             del(kw['type'])
         return kw
 

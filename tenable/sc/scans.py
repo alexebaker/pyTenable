@@ -74,6 +74,14 @@ class ScanAPI(SCEndpoint):
                 'email_launch', kw['email_launch'], bool, default=False)).lower()
             del(kw['email_launch'])
 
+        if 'host_tracking' in kw:
+            # As host_tracking is effectively a string interpretation of a bool
+            # value, if the snake case equivalent is used, we will convert it
+            # into the expected parameter and remove the snake cased version.
+            kw['dhcpTracking'] = str(self._check(
+                'host_tracking', kw['host_tracking'], bool, default=False)).lower()
+            del(kw['host_tracking'])
+
         if 'timeout' in kw:
             # timeout is the checked version of timeoutAction.  If timeout is
             # specified, we will check to make sure that the action is a valid
@@ -124,7 +132,7 @@ class ScanAPI(SCEndpoint):
             if max_scan_time < 1:
                 kw['maxScanTime'] = 'unlimited'
             elif max_scan_time > 120:
-                kw['maxScanTime'] = 120
+                kw['maxScanTime'] = '120'
             else:
                 kw['maxScanTime'] = str(max_scan_time)
             del(kw['max_time'])
@@ -254,9 +262,15 @@ class ScanAPI(SCEndpoint):
             host_tracking (bool, optional):
                 Should DHCP host tracking be enabled?  The default is False.
             max_time (int, optional):
+<<<<<<< HEAD
                 The maximum amount of time that the scan may run in hours.
                 Must be between 1hr and 120hr. Use 0 for 'unlimited' duration.
                 The default is ``1`` hour.
+=======
+                The maximum amount of time that the scan may run in seconds.
+                ``0`` or less for unlimited.
+                The default is ``3600`` seconds.
+>>>>>>> ea5d0c4b61c9f25e625e8bb736e88b9aefb7b7f1
             policy_id (int, optional):
                 The policy id to use for a policy-based scan.
             plugin_id (int, optional):
@@ -363,8 +377,8 @@ class ScanAPI(SCEndpoint):
             host_tracking (bool, optional):
                 Should DHCP host tracking be enabled?
             max_time (int, optional):
-                The maximum amount of time that the scan may run in hours.
-                Must be between 1hr and 120hr. Use 0 for 'unlimited' duration.
+                The maximum amount of time that the scan may run in seconds.
+                ``0`` or less for unlimited.
             name (str, optional): The name of the scan.
             policy (int, optional):
                 The policy id to use for a policy-based scan.
