@@ -114,13 +114,31 @@ class TenableIO(APISession):
             If a 429 response is returned, how much do we want to backoff
             if the response didn't send a Retry-After header.  The default
             backoff is ``1`` second.
-        ua_identity (str, optional):
-            An application identifier to be added into the User-Agent string
-            for the purposes of application identification.
+        vendor (str, optional):
+            The vendor name for the User-Agent string.
+        product (str, optional):
+            The product name for the User-Agent string.
+        build (str, optional):
+            The version or build identifier for the User-Agent string.
 
     Examples:
+        Basic Example:
+
         >>> from tenable.io import TenableIO
         >>> tio = TenableIO('ACCESS_KEY', 'SECRET_KEY')
+
+        Example with proper identification:
+
+        >>> tio = TenableIO('ACCESS_KEY', 'SECRET_KEY',
+        >>>     vendor='Company Name',
+        >>>     product='My Awesome Widget',
+        >>>     build='1.0.0')
+
+        Example with proper identification leveraging environment variables for
+        access and secret keys:
+
+        >>> tio = TenableIO(
+        >>>     vendor='Company Name', product='Widget', build='1.0.0')
     '''
 
     _tzcache = None
@@ -250,7 +268,8 @@ class TenableIO(APISession):
         return self._tzcache
 
     def __init__(self, access_key=None, secret_key=None, url=None, retries=None,
-                 backoff=None, ua_identity=None, session=None, proxies=None):
+                 backoff=None, ua_identity=None, session=None, proxies=None,
+                 vendor=None, product=None, build=None):
         if access_key:
             self._access_key = access_key
         else:
@@ -264,12 +283,15 @@ class TenableIO(APISession):
         if not self._access_key or not self._secret_key:
             raise UnexpectedValueError('No valid API Keypair Defined')
 
-        APISession.__init__(self, url,
+        super(TenableIO, self).__init__(url,
             retries=retries,
             backoff=backoff,
             ua_identity=ua_identity,
             session=session,
-            proxies=proxies)
+            proxies=proxies,
+            vendor=vendor,
+            product=product,
+            build=build)
 
     def _retry_request(self, response, retries, kwargs):
         '''
@@ -294,7 +316,7 @@ class TenableIO(APISession):
         '''
         Build the session and add the API Keys into the session
         '''
-        APISession._build_session(self, session)
+        super(TenableIO, self)._build_session(session)
         self._session.headers.update({
             'X-APIKeys': 'accessKey={}; secretKey={};'.format(
                 self._access_key, self._secret_key)

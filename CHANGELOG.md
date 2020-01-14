@@ -4,9 +4,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.2]
+### Added
+- Exporting WAS scans nor functions as intended. #175
+
 ### Fixed
-- Implicit "all" hostType was not set when creatinf an accepted risk. #162
+- TenableIO.TagAPI filter check erroneously used self.check instead of self._check
+
+
+## [1.0.1]
+### Added
+- API Key support for TenableSC as Tenable.sc version 5.13 introduced key support.
+- TenableSC now supports context management for authentication. (with TenableSC...)
+- Dyanamic tag filter field support for TenableIO.tags create and edit methods. #174
+
+### Changed
+- TenableSC.login user && passwd parameters now called username && password
+
+## [1.0.0]
+### Changed
+- Upped Revision on 0.3.29
+
+### Added
+- Testing in travis for Python 3.7 and 3.8
+
+## [0.3.29]
+### Fixed
+- New UA String code was failing on windows hosts as os.uname isn't x-platform #164
+- Implicit "all" hostType was not set when creating an accepted risk. #162
+
+## [0.3.28]
+### Changed
+- Converted to new UA String format in an effort to normalize UA strings.
 
 ## [0.3.37]
 ### Changed
@@ -375,7 +404,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fixed Time Conversion Issue #6
 
-[Unreleased]: https://github.com/tenable/pyTenable/compare/0.3.27...master
+[Unreleased]: https://github.com/tenable/pyTenable/compare/1.0.2...master
+[1.0.2]: https://github.com/tenable/pyTenable/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/tenable/pyTenable/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/tenable/pyTenable/compare/0.3.29...1.0.0
+[0.3.29]: https://github.com/tenable/pyTenable/compare/0.3.28...0.3.29
+[0.3.28]: https://github.com/tenable/pyTenable/compare/0.3.27...0.3.28
 [0.3.27]: https://github.com/tenable/pyTenable/compare/0.3.26...0.3.27
 [0.3.26]: https://github.com/tenable/pyTenable/compare/0.3.25...0.3.26
 [0.3.25]: https://github.com/tenable/pyTenable/compare/0.3.24...0.3.25
