@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5]
+### Fixed
+- Documentation Examples for TenableSC.feeds use feed instead of feeds #178
+- Documentation Examples for TenableSC.files used feed instead of files. #179
+- TenableSC.credentials used the incorrect parameter for oracleAuthType. #180
+
+## [1.0.4]
+### Fixed
+- TenableSC.AssetListAPI constructor improperly referred to fobj instead of kw['fobj'] #177
+- TenableSC.ScannerAPI.edit improperly attempted to merge the scanner details into the PATCH call #176
+
+### Changed
+- Increased default chunk sizing for TenableIO.exports.assets to 1000
+- Increased default num_assets chunk sizing for TenableIO.exports.vulns to 500
+- Increased default page sizing for TenableSC.analysis calls to 1000
+- Improved debug logs for all API calls.  Debug logs now effectively log before, during, and after.
+- Improved debug log format.  Pre-Request logs now output a standard JSON format.
+
+## [1.0.3]
+### Added
+- Will now attempt to retry on lower-level ConnectionErrors.
+
+### Changed
+- ExportIterator will now backoff on status calls up to 30 seconds between calls.
+
 ## [1.0.2]
 ### Added
 - Exporting WAS scans nor functions as intended. #175
@@ -404,7 +429,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fixed Time Conversion Issue #6
 
-[Unreleased]: https://github.com/tenable/pyTenable/compare/1.0.2...master
+[Unreleased]: https://github.com/tenable/pyTenable/compare/1.0.5...master
+[1.0.5]: https://github.com/tenable/pyTenable/compare/1.0.4...1.0.5
+[1.0.4]: https://github.com/tenable/pyTenable/compare/1.0.3...1.0.4
+[1.0.3]: https://github.com/tenable/pyTenable/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/tenable/pyTenable/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/tenable/pyTenable/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/tenable/pyTenable/compare/0.3.29...1.0.0

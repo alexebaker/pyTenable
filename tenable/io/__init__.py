@@ -291,7 +291,8 @@ class TenableIO(APISession):
             proxies=proxies,
             vendor=vendor,
             product=product,
-            build=build)
+            build=build
+        )
 
     def _retry_request(self, response, retries, kwargs):
         '''

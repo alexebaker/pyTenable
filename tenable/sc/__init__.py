@@ -204,7 +204,8 @@ class TenableSC(APISession):
             proxies=proxies,
             vendor=vendor,
             product=product,
-            build=build)
+            build=build
+        )
 
         # If a client-side certificate is specified, then we will want to add
         # it into the session object as well.  The cert parameter is expecting
