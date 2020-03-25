@@ -2,7 +2,10 @@
 .. autoclass:: APIResultsIterator
 '''
 import requests, sys, platform, logging, re, time, logging, warnings, json
-from requests.exceptions import ConnectionError as RequestsConnectionError
+from requests.exceptions import (
+    ConnectionError as RequestsConnectionError,
+    RequestException as RequestsRequestException
+)
 from .errors import *
 from . import __version__, __author__
 
@@ -300,7 +303,7 @@ class APISession(object):
             object.
         retries (int, optional):
             The number of retries to make before failing a request.  The
-            default is 3.
+            default is 5.
         backoff (float, optional):
             If a 429 response is returned, how much do we want to backoff
             if the response didn't send a Retry-After header.
@@ -338,9 +341,15 @@ class APISession(object):
     Retry-After header was returned.
     '''
 
+    _timeout = None
+    '''
+    int: number of seconds to wait for the response to complete before raising
+    an exception.
+    '''
+
     def __init__(self, url=None, retries=None, backoff=None,
                  ua_identity=None, session=None, proxies=None,
-                 vendor=None, product=None, build=None):
+                 vendor=None, product=None, build=None, timeout=None):
         if url:
             self._url = url
         if retries and isinstance(retries, int):
@@ -357,6 +366,8 @@ class APISession(object):
             self._product = product
         if build:
             self._build = build
+        if timeout and isinstance(timeout, (int, tuple)):
+            self._timeout = timeout
         self._log = logging.getLogger('{}.{}'.format(
             self.__module__, self.__class__.__name__))
         self._build_session(session)
@@ -365,8 +376,6 @@ class APISession(object):
         '''
         Requests session builder
         '''
-
-
         if session:
             self._session = session
         else:
@@ -427,7 +436,7 @@ class APISession(object):
         Request call builder
         '''
         retries = 0
-        retry_codes = [429, 501, 502, 503]
+        retry_codes = [429, 501, 502, 503, 504]
         if 'retry_on' in kwargs:
             # if the retry_on parameter is passed, then we will consume this
             # to extend the codes that we will attempt to retry.
@@ -460,16 +469,23 @@ class APISession(object):
             # Make the call to the API and pull the status code.
             try:
                 resp = self._session.request(method,
-                    '{}/{}'.format(self._url, path), **kwargs)
+                    '{}/{}'.format(self._url, path),
+                    timeout=self._timeout, **kwargs)
                 status = resp.status_code
-            except RequestsConnectionError as err:
-                self._log.error('Connection Reset {}'.format(str(err)))
-                time.sleep(0.1)
+
+            # This series of error blocks will catch any underlying exceptions
+            # thrown from the requests library, log them, iterate the retry
+            # counter, then release the attempt for the next iteration.
+            except (RequestsConnectionError, RequestsRequestException) as err:
+                self._log.error('Requests Error: {}'.format(str(err)))
+                time.sleep(1)
                 retries += 1
+
+            # The following code will run when a request successfully returned.
             else:
                 # If there is a Request UUID then we will want to log the UUID
                 # just incase we may need it for tracking down what happened
-                # within the
+                # within the Tenable.io platform.
                 if resp.headers.get('x-request-uuid'):
                     self._log.debug('Request-UUID {} for {}'.format(
                         resp.headers.get('x-request-uuid'),

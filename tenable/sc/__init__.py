@@ -116,7 +116,7 @@ class TenableSC(APISession):
             default is port ``443``.
         retries (int, optional):
             The number of retries to make before failing a request.  The
-            default is ``3``.
+            default is ``5``.
         scheme (str, optional):
             What HTTP scheme should be used for URI path construction.  The
             default is ``https``.
@@ -130,6 +130,10 @@ class TenableSC(APISession):
             Default is False.
         username (str, optional):
             The username to use for session authentication.
+        timeout (int, optional):
+            The connection timeout parameter informing the library how long to
+            wait in seconds for a stalled response before terminating the
+            connection.  If unspecified, the default is 300 seconds.
 
 
     Examples:
@@ -172,6 +176,7 @@ class TenableSC(APISession):
     '''
     _apikeys = False
     _restricted_paths = ['token']
+    _timeout = 300
     _error_codes = {
         400: InvalidInputError,
         403: APIError,
@@ -182,13 +187,13 @@ class TenableSC(APISession):
     def __init__(self, host, access_key=None, secret_key=None, username=None,
                  password=None, port=443, ssl_verify=False, cert=None,
                  adapter=None, scheme='https', retries=None, backoff=None,
-                 ua_identity=None, session=None, proxies=None,
-                 vendor=None, product=None, build=None):
+                 ua_identity=None, session=None, proxies=None, timeout=None,
+                 vendor=None, product=None, build=None, base_path='rest',):
         # As we will always be passing a URL to the APISession class, we will
         # want to construct a URL that APISession (and further requests)
         # understands.
         base = '{}://{}:{}'.format(scheme, host, port)
-        url = '{}/rest'.format(base)
+        url = '{}/{}'.format(base, base_path)
 
         # Setting the SSL Verification flag on the object itself so that it's
         # reusable if the user logs out and logs back in.
@@ -204,7 +209,8 @@ class TenableSC(APISession):
             proxies=proxies,
             vendor=vendor,
             product=product,
-            build=build
+            build=build,
+            timeout=timeout
         )
 
         # If a client-side certificate is specified, then we will want to add
